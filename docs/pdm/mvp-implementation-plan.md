@@ -16,79 +16,99 @@ relations:
     target: taguchi-scope-reduction-decision
   - type: related_to
     target: taguchi-system-roadmap
-  - type: related_to
-    target: taguchi-ui-css-architecture-decision
 ---
 
 # 発注オンライン化 MVP 実装計画
 
 ## Objective
 
-2026-09-07〜2026-09-13の週に、数時間の集中作業で提示可能なMVPへ到達します。
+現場から本社への発注を、Webフォーム → メール通知 + PDF生成の経路で成立させ、既存の受注工程へ確実に引き継げる状態にします。
 
-現場から本社への発注を、Webフォーム → メール通知 + PDF生成の経路で成立させます。旧Proposal由来のEC機能を完成させることは目的にしません。
+来週の提示では、旧Proposalに含まれるEC全体を完成させることではなく、代表発注を実際に送信し、本社側でメールとPDFを受領できる一連の体験を提示できることを優先します。
 
 ## Scope
 
-必須:
+MVP対象:
 
-- 発注フォーム
-- 必須入力検証
+- 既存Contact Form 7 `purchase-order_form` を利用した発注入力
+- 入力検証
 - 発注受付識別子
 - 本社向けメール通知
-- 発注書PDF生成
-- メールとPDFの内容一致
-- 代表ケースの動作確認
-- 提示可能なUI品質
+- 同じ入力データからの発注書PDF生成
+- PDFの管理メール添付
+- PDF生成失敗時にメール単独送信を許可しないfail-closed動作
+- 発注画面の提示品質までのUI調整
+- desktop / mobileでの表示確認
 
 UI/CSS:
 
-- `Period-Inc/Codes` のCSS資産化ポリシーに従う
-- Tailwind CSSを導入する
-- Tailwindを直接の設計言語にせず、semantic / component / layout等の抽象化レイヤーを置く
-- 既存CSS全面置換ではなく、MVP対象画面から段階移行する
+- `Period-Inc/Codes` のCSS資産化方針を上位規範とする。
+- templateはsemantic classを使用し、framework utilityを直接散在させない。
+- semantic/component abstraction layerの実装frameworkとしてTailwind CSS 4.3.3を使用する。
+- 既存WordPressテーマへ段階導入するためTailwind Preflightは使用しない。
 
-対象外:
+MVP対象外:
 
-- EC完成
+- WooCommerce checkout完成
+- EC一般注文・買掛注文
 - 決済
-- 本格的注文管理
+- 本格注文管理
 - 承認フロー
 - 原価管理
 - 管理ダッシュボード
 - 在庫・配送管理
 
+追加可能範囲として、受注用PCへのPDF自動保存・自動印刷を扱います。ただしM1提示の必須条件にはしません。
+
 ## Steps
 
-1. **現行経路の確認** — 発注に関係する既存テンプレート、functions、WooCommerce hooks、フォーム処理を特定する。
-2. **最短経路を選ぶ** — 既存実装を流用する方が速い部分と、現行MVP用に切り出す部分を分ける。
-3. **フォームを成立させる** — 必須項目、入力検証、受付IDを実装する。
-4. **メールを成立させる** — 本社向け通知の件名・本文・宛先設定を実装する。
-5. **PDFを成立させる** — 同じ入力モデルから発注書PDFを生成し、メールとの内容差異を防ぐ。
-6. **UI基盤を入れる** — Tailwind buildを追加し、MVP画面向けsemantic/component layerを構成する。
-7. **UIを整える** — フォーム、確認、完了、エラー状態を現代的で業務利用に違和感のないUIへ調整する。
-8. **代表ケースを通す** — 入力 → 送信 → メール → PDFを一連で確認する。
-9. **提示準備** — 既知制約と将来候補を切り分けた状態で提示する。
+### Repository implementation — completed
+
+1. 既存実装を監査し、発注専用CF7フォームをMVP入口として特定する。
+2. 発注ページをsemantic UI構造へ整理する。
+3. Tailwind buildとcomponent abstraction layerを導入する。
+4. 発注受付処理をproject MU pluginへ分離する。
+5. 発注受付番号を生成する。
+6. CF7送信データからmPDFでA4発注書を生成する。
+7. 生成PDFを管理メールへ添付する。
+8. PDF生成失敗時は送信を中断する。
+9. npm / Composer依存とlockを確定する。
+10. CIでTailwind build、Composer、mPDF、PHP構文を検証する。
+11. deploy scriptをテーマ + MVP MU plugin配布へ拡張する。
+
+### Runtime acceptance — remaining
+
+12. 検証環境へbranchをデプロイする。
+13. 実CF7フォームのfield nameとPDF表示ラベルを照合する。
+14. 代表発注を送信し、メール受信・受付番号・PDF添付を確認する。
+15. PDFの日本語、項目、改行、A4レイアウトを目視確認する。
+16. desktop / mobileで入力、確認、完了、validation errorを確認する。
+17. 問題を修正し、再度代表発注を通す。
+18. M1受入後、PRをmainへ統合する。
 
 ## Dependencies
 
-- 通知先メールアドレス
-- 発注書に必要な項目・様式
-- WordPress実環境のメール送信可否
-- PDF生成に利用可能な既存依存または導入可能なライブラリ
-- 既存テーマCSSとの競合範囲
-
-要求が未確定な細部は、MVP提示を阻害しない安全な暫定値・設定可能値として扱い、ハードコードで恒久仕様化しません。
+- Contact Form 7 6.1.6
+- `purchase-order_form` の実環境設定
+- 本社側の通知先メール設定
+- PHP 7.4以上
+- PHP extensions: mbstring, gd
+- mPDF 8.3.1（Composerで管理）
+- Tailwind CSS 4.3.3（build-time dependency）
+- 検証環境へのデプロイ権限
 
 ## Completion
 
-以下を満たした時点でMVP提示可能とします。
+以下を満たしたときM1を完了とします。
 
 - 代表的な発注をWebフォームから正常送信できる。
 - 本社側で該当発注のメールを受信できる。
-- 同じ発注に対応するPDFを取得できる。
-- メールとPDFの主要内容が一致する。
-- エラー時に利用者へ適切な状態が示される。
-- PC/モバイルで発注操作に大きなUI崩れがない。
-- Tailwindのutilityが無秩序にテンプレートへ散在せず、プロジェクト側の抽象化境界がある。
-- MVP対象外の旧Proposal機能を完成済みと誤認させない。
+- メール件名等から受付番号を識別できる。
+- 同じ発注に対応するPDFがメール添付される。
+- メールとPDFの主要発注内容が一致する。
+- PDFの日本語が正常に表示される。
+- 発注受付から本社の既存受注工程へ引き継げる。
+- PDF生成等の異常時に、正常受付と誤認するメールが送信されない。
+- desktop / mobileで提示に耐えるUIになっている。
+
+PDF自動保存・自動印刷は、導入すると判断した場合のみM2の完了条件として扱います。
