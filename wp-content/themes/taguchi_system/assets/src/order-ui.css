@@ -1,0 +1,158 @@
+@layer theme, base, components, utilities;
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/utilities.css" layer(utilities) source(none);
+
+@theme {
+  --color-order-ink: #172033;
+  --color-order-muted: #667085;
+  --color-order-line: #d8dee9;
+  --color-order-surface: #ffffff;
+  --color-order-canvas: #f5f7fa;
+  --color-order-accent: #c76a2b;
+  --color-order-accent-strong: #9f4f1c;
+  --color-order-accent-soft: #fff4eb;
+}
+
+/*
+ * Semantic abstraction layer.
+ * Templates use these role-oriented classes; Tailwind remains an implementation detail.
+ */
+@layer components {
+  .order-page {
+    @apply bg-order-canvas py-10 text-order-ink md:py-16;
+  }
+
+  .order-shell {
+    @apply mx-auto w-[min(100%-2rem,72rem)];
+  }
+
+  .order-header {
+    @apply mx-auto mb-8 max-w-3xl md:mb-10;
+  }
+
+  .order-eyebrow {
+    @apply mb-2 text-xs font-semibold tracking-[0.18em] text-order-accent;
+  }
+
+  .order-title {
+    @apply m-0 text-3xl font-semibold tracking-tight text-order-ink md:text-4xl;
+  }
+
+  .order-description {
+    @apply mt-4 max-w-2xl text-sm leading-7 text-order-muted md:text-base;
+  }
+
+  .order-panel {
+    @apply overflow-hidden rounded-2xl border border-order-line bg-order-surface shadow-sm;
+  }
+
+  .order-panel__notice {
+    @apply flex flex-col gap-1 border-b border-order-line bg-order-accent-soft px-5 py-4 text-sm md:flex-row md:items-center md:gap-4 md:px-8;
+  }
+
+  .order-panel__notice strong {
+    @apply shrink-0 font-semibold text-order-accent-strong;
+  }
+
+  .order-panel__notice span {
+    @apply leading-6 text-order-muted;
+  }
+
+  .order-form {
+    @apply px-5 py-6 md:px-8 md:py-8 lg:px-10 lg:py-10;
+  }
+
+  .order-form .wpcf7-form {
+    @apply w-full;
+  }
+
+  .order-form #cf7-input-area > .row {
+    @apply grid grid-cols-1 gap-6 lg:grid-cols-2 lg:gap-8;
+  }
+
+  .order-form #cf7-input-area > .row > .left,
+  .order-form #cf7-input-area > .row > .right {
+    @apply w-full;
+  }
+
+  .order-form .form__item {
+    @apply mb-5;
+  }
+
+  .order-form .form__item .head,
+  .order-form label {
+    @apply mb-2 block text-sm font-semibold leading-6 text-order-ink;
+  }
+
+  .order-form input:not([type="submit"]):not([type="button"]):not([type="checkbox"]):not([type="radio"]),
+  .order-form select,
+  .order-form textarea {
+    @apply block w-full rounded-lg border border-order-line bg-white px-3.5 py-3 text-base text-order-ink outline-none transition placeholder:text-slate-400 focus:border-order-accent focus:ring-2 focus:ring-order-accent/15;
+  }
+
+  .order-form select {
+    @apply min-h-12;
+  }
+
+  .order-form textarea {
+    @apply min-h-52 resize-y;
+  }
+
+  .order-form .messageWrap {
+    @apply mt-7;
+  }
+
+  .order-form .wpcf7-not-valid-tip {
+    @apply mt-1.5 block text-sm font-medium text-red-600;
+  }
+
+  .order-form .wpcf7-response-output {
+    @apply !mx-0 !mt-6 rounded-lg !border px-4 py-3 text-sm leading-6;
+  }
+
+  .order-form form.invalid .wpcf7-response-output,
+  .order-form form.failed .wpcf7-response-output,
+  .order-form form.unaccepted .wpcf7-response-output {
+    @apply !border-red-200 bg-red-50 text-red-800;
+  }
+
+  .order-form form.sent .wpcf7-response-output {
+    @apply !border-emerald-200 bg-emerald-50 text-emerald-800;
+  }
+
+  .order-form input[type="submit"],
+  .order-form button[type="submit"],
+  .order-form .confirm-submit button {
+    @apply inline-flex min-h-12 cursor-pointer items-center justify-center rounded-lg border-0 bg-order-accent px-7 py-3 text-base font-semibold text-white transition hover:bg-order-accent-strong focus:outline-none focus:ring-2 focus:ring-order-accent focus:ring-offset-2;
+  }
+
+  .order-form #cf7-confirm-area .confirm-wrap {
+    @apply rounded-xl border border-order-line p-5 md:p-8;
+  }
+
+  .order-form #cf7-confirm-area .confirm-info,
+  .order-form #cf7-confirm-area .confirm-message,
+  .order-form #cf7-confirm-area .confirm-site {
+    @apply mt-5 overflow-hidden rounded-lg border border-order-line;
+  }
+
+  .order-form #cf7-confirm-area dl {
+    @apply m-0 grid grid-cols-[8rem_1fr] border-b border-order-line last:border-b-0;
+  }
+
+  .order-form #cf7-confirm-area dt {
+    @apply bg-slate-50 px-4 py-3 text-sm font-semibold text-order-ink;
+  }
+
+  .order-form #cf7-confirm-area dd {
+    @apply m-0 px-4 py-3 text-sm leading-6 text-order-ink;
+  }
+
+  .order-form #cf7-confirm-area .confirm-submit p {
+    @apply mt-8 flex flex-wrap justify-center gap-3;
+  }
+
+  .order-form #cf7-confirm-area #back-button {
+    @apply bg-slate-600 hover:bg-slate-700;
+  }
+}
