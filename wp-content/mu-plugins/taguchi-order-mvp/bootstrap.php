@@ -99,7 +99,7 @@ final class Taguchi_Order_MVP {
             $key = (string) $key;
 
             // CF7/internal transport fields are not business data.
-            if ( '' === $key || str_starts_with( $key, '_' ) || self::PDF_FIELD === $key ) {
+            if ( '' === $key || 0 === strpos( $key, '_' ) || self::PDF_FIELD === $key ) {
                 continue;
             }
 
@@ -145,14 +145,14 @@ final class Taguchi_Order_MVP {
 
         $mpdf = new \Mpdf\Mpdf(
             array(
-                'mode'       => '+aCJK',
-                'format'     => 'A4',
-                'orientation'=> 'P',
-                'tempDir'    => $work_dir,
-                'margin_top' => 14,
-                'margin_right' => 14,
+                'mode'          => '+aCJK',
+                'format'        => 'A4',
+                'orientation'   => 'P',
+                'tempDir'       => $work_dir,
+                'margin_top'    => 14,
+                'margin_right'  => 14,
                 'margin_bottom' => 14,
-                'margin_left' => 14,
+                'margin_left'   => 14,
             )
         );
 
