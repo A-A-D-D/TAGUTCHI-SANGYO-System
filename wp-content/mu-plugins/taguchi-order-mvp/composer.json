@@ -3,7 +3,7 @@
   "description": "Taguchi Sangyo purchase-order MVP runtime dependencies",
   "type": "project",
   "require": {
-    "mpdf/mpdf": "^8.3.1"
+    "mpdf/mpdf": "8.3.1"
   },
   "config": {
     "sort-packages": true,
