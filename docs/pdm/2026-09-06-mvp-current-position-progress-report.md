@@ -22,60 +22,84 @@ relations:
 
 ## Roadmap Position
 
-現在はM0「現在地確定」からM1「提示用オンライン発注MVP」へ移る直前です。
+現在はM1「提示用オンライン発注MVP」の**Repository実装完了、実環境統合検証前**です。
 
-RepositoryにはWordPressカスタムテーマ `taguchi_system` があり、WooCommerce向けの商品、カート、チェックアウト等の画面骨格も存在します。一方、現行MVPの正本はEC完成ではなく「発注フォーム → 本社メール + PDF発注書」です。
+現行MVPの正本である「発注フォーム → 本社メール + PDF発注書」について、既存Contact Form 7の `purchase-order_form` を入口として再利用し、メール送信時に同じ入力データからPDFを生成・添付する実装を追加しました。
 
-Repository上の確認では、現行MVPの一連経路が完成・検証済みである証拠は確認できていません。したがってM1達成済みとは判定しません。
+M1を完了扱いにはまだしません。実サーバー上で代表発注を送信し、メール受信・PDF内容・日本語表示・UIを確認する必要があります。
 
 ## Achieved Capabilities
 
-現時点で確認できる資産:
+Repository上で実装・検証済みの内容:
 
-- WordPressカスタムテーマの基盤がある。
-- 既存ページテンプレート、header/footer、functions等があり、ゼロからサイトを構築する状態ではない。
-- WooCommerce向け画面骨格があるため、旧ProposalのEC構想を将来再利用できる余地がある。
-- 現行MVPと将来ProposalのauthorityがPDM上で分離された。
-- MVP提示に向けた実装順序とUI/CSS方針が決定された。
+- 既存の発注専用CF7フォーム `purchase-order_form` をMVP入力経路として特定した。
+- EC / WooCommerce checkoutをMVP実装経路から分離した。
+- 発注受付処理をテーマではなくproject MU pluginへ分離した。
+- 発注時に受付番号を発行する処理を追加した。
+- CF7送信データをmPDFへ渡し、日本語/CJK対応のA4発注書PDFを生成する処理を追加した。
+- 生成PDFをCF7管理メールへ添付する処理を追加した。
+- PDF生成失敗時はメールだけを送らず、送信自体を中断するfail-closed動作とした。
+- 発注ページをsemantic classで再構成した。
+- CSS抽象化レイヤーの下位frameworkとしてTailwind CSS 4.3.3を導入した。
+- Tailwind Preflightは既存WordPressテーマへの影響を避けるため無効化した。
+- Tailwind生成物、npm lock、Composer lockをCIで確定する経路を追加した。
+- PHP構文、Tailwind build、Composer定義、mPDF installationをGitHub Actionsで検証した。
+- デプロイスクリプトを新Repository slugへ更新し、MU plugin + Composer依存を配布できる構成へ拡張した。
 
 ## Stakeholder Impact
 
-次の作業では旧EC全体を完成させる必要がなく、現場から本社への発注受付に集中できます。
+提示用MVPは、旧ProposalのEC全体を完成させなくても成立する状態になりました。
 
-これにより、短い作業時間を「フォーム・メール・PDF・提示用UI」という実際に確認してもらう価値がある経路へ集中できます。
+次の実環境確認で、現場担当者が既存のWeb発注フォームを入力し、本社側がメールとPDF発注書を受け取る一連の体験を確認できます。
+
+UIも既存テーマを全面改修せず、発注画面から段階的にモダン化できる基盤になっています。
 
 ## Remaining
 
-M1までの主要残作業:
+M1完了までの必須確認:
 
-- 発注に関係する既存コード経路の特定
-- MVP用入力モデルの確定
-- フォーム入力・検証
-- 本社メール通知
-- PDF生成
-- メール/PDFの同一データ化
-- Tailwind build導入
-- semantic/component CSS layer構築
-- フォーム、確認、完了、エラーUI調整
-- 代表ケースでの一連動作確認
+- 検証環境へbranchをデプロイする。
+- 実際のCF7フォームフィールド名とPDFの表示ラベルを照合する。
+- 代表発注を送信する。
+- 本社向けメールが受信できることを確認する。
+- メール件名に受付番号が付与されることを確認する。
+- PDFがメールに添付されることを確認する。
+- PDFの日本語・改行・項目順・A4レイアウトを目視確認する。
+- メール内容とPDF内容が同一発注データであることを確認する。
+- desktop / mobileで発注フォーム、確認、完了、validation errorのUIを目視確認する。
+- 実環境で問題がなければM1完了としてPRをmainへ統合する。
 
-追加候補だがM1必須ではないもの:
+M1必須ではないもの:
 
 - 受注用PCへのPDF自動保存
 - 自動印刷
 - 受付履歴管理
+- WooCommerce / ECの完成
+- 承認・原価管理・管理ダッシュボード
 
 ## Evidence
 
-確認根拠:
+Repository evidence:
 
-- `wp-content/themes/taguchi_system/`
-- `wp-content/themes/taguchi_system/functions.php`
-- `wp-content/themes/taguchi_system/page-cart.php`
-- `wp-content/themes/taguchi_system/page-checkout.php`
-- `docs/audit/current-state.md`
+- `wp-content/themes/taguchi_system/page-purchase-order.php`
+- `wp-content/themes/taguchi_system/assets/src/order-ui.css`
+- `wp-content/themes/taguchi_system/assets/css/order-ui.css`
+- `wp-content/mu-plugins/taguchi-order-mvp.php`
+- `wp-content/mu-plugins/taguchi-order-mvp/bootstrap.php`
+- `wp-content/mu-plugins/taguchi-order-mvp/composer.json`
+- `wp-content/mu-plugins/taguchi-order-mvp/composer.lock`
+- `package.json`
+- `package-lock.json`
+- `.github/workflows/mvp-check.yml`
+- `scripts/deploy-xserver.sh`
 - `docs/pdm/order-digitization-spec.md`
 - `docs/pdm/mvp-implementation-plan.md`
 - `Period-Inc/Codes/docs/development-policy.md`
 
-このレポートは実ブラウザ・実サーバーでのE2E確認結果ではなく、Repository上の実装監査に基づく現在地です。
+Verification evidence:
+
+- GitHub Actions `MVP Check`: Tailwind build success
+- GitHub Actions `MVP Check`: Composer validation / mPDF installation success
+- GitHub Actions `MVP Check`: PHP syntax checks success
+
+このレポートはRepository/CI上の実装状態を表します。実ブラウザ、実メール配送、実PDFの受入確認はまだM1の未完了条件として残します。
