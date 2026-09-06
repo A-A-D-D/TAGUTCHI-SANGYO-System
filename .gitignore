@@ -13,6 +13,9 @@ wp-content/uploads/
 wp-content/plugins/*
 !wp-content/plugins/plugins.md
 
+# Project MU plugin runtime dependencies (composer.lock is tracked)
+wp-content/mu-plugins/taguchi-order-mvp/vendor/
+
 # バックアップファイル
 wp-content/themes/taguchi_system/*.bak-*
 .crossnote/
