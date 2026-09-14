@@ -6,6 +6,7 @@ on:
   push:
     branches:
       - chore/mvp-roadmap-ui-foundation
+      - 'feature/**'
 
 permissions:
   contents: write
@@ -51,6 +52,7 @@ jobs:
         run: |
           php -l wp-content/mu-plugins/taguchi-order-mvp.php
           php -l wp-content/mu-plugins/taguchi-order-mvp/bootstrap.php
+          php -l wp-content/mu-plugins/taguchi-order-mvp/site-select.php
           php -l wp-content/themes/taguchi_system/page-purchase-order.php
 
       - name: Commit deterministic build inputs and artifact
