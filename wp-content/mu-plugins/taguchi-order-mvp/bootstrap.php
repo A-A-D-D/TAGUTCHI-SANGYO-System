@@ -15,12 +15,13 @@ defined( 'ABSPATH' ) || exit;
 
 final class Taguchi_Order_MVP {
     private const FORM_TITLE = 'purchase-order_form';
-    private const PDF_FIELD  = 'taguchi-order-pdf';
 
     private static string $receipt_id = '';
+    private static string $pdf_path   = '';
 
     public static function boot(): void {
         add_action( 'wpcf7_before_send_mail', array( self::class, 'prepare_order_mail' ), 20, 3 );
+        add_filter( 'wpcf7_mail_components', array( self::class, 'attach_generated_pdf' ), 20, 3 );
     }
 
     public static function prepare_order_mail( $contact_form, &$abort, $submission = null ): void {
@@ -61,29 +62,44 @@ final class Taguchi_Order_MVP {
         self::$receipt_id = self::create_receipt_id();
 
         try {
-            $pdf_path = self::create_pdf( self::$receipt_id, $data );
+            self::$pdf_path = self::create_pdf( self::$receipt_id, $data );
         } catch ( Throwable $error ) {
             self::fail( $abort, 'PDF generation failed: ' . $error->getMessage() );
             return;
         }
 
-        if ( ! is_readable( $pdf_path ) ) {
+        if ( ! is_readable( self::$pdf_path ) ) {
             self::fail( $abort, 'Generated purchase-order PDF is not readable.' );
             return;
         }
 
-        // CF7 manages lifecycle/cleanup for files registered on the submission.
-        $submission->add_uploaded_file( self::PDF_FIELD, $pdf_path );
-
         $mail = (array) $contact_form->prop( 'mail' );
         $mail['subject'] = self::prefix_subject( (string) ( $mail['subject'] ?? '' ), self::$receipt_id );
         $mail['body'] = self::prepend_receipt_to_body( (string) ( $mail['body'] ?? '' ), self::$receipt_id );
-        $mail['attachments'] = self::append_attachment_tag(
-            (string) ( $mail['attachments'] ?? '' ),
-            '[' . self::PDF_FIELD . ']'
-        );
 
         $contact_form->set_properties( array( 'mail' => $mail ) );
+    }
+
+    public static function attach_generated_pdf( array $components, $contact_form, $mail ): array {
+        if ( ! self::is_purchase_order_form( $contact_form ) ) {
+            return $components;
+        }
+
+        if ( '' === self::$pdf_path || ! is_readable( self::$pdf_path ) ) {
+            return $components;
+        }
+
+        $attachments = isset( $components['attachments'] ) && is_array( $components['attachments'] )
+            ? $components['attachments']
+            : array();
+
+        if ( ! in_array( self::$pdf_path, $attachments, true ) ) {
+            $attachments[] = self::$pdf_path;
+        }
+
+        $components['attachments'] = $attachments;
+
+        return $components;
     }
 
     private static function is_purchase_order_form( $contact_form ): bool {
@@ -99,7 +115,7 @@ final class Taguchi_Order_MVP {
             $key = (string) $key;
 
             // CF7/internal transport fields are not business data.
-            if ( '' === $key || 0 === strpos( $key, '_' ) || self::PDF_FIELD === $key ) {
+            if ( '' === $key || 0 === strpos( $key, '_' ) ) {
                 continue;
             }
 
@@ -198,9 +214,12 @@ final class Taguchi_Order_MVP {
     private static function field_label( string $key ): string {
         $labels = array(
             'request-date' => '希望日',
+            'date' => 'お届け希望日',
+            'time' => '受取希望時間帯',
             'site' => '現場',
             'site_select' => '現場',
             'site-name' => '現場名',
+            'site_address' => '現場住所',
             'company' => '会社名',
             'company-name' => '会社名',
             'name' => '担当者名',
@@ -230,14 +249,6 @@ final class Taguchi_Order_MVP {
 
     private static function prepend_receipt_to_body( string $body, string $receipt_id ): string {
         return sprintf( "受付番号: %s\n\n%s", $receipt_id, ltrim( $body ) );
-    }
-
-    private static function append_attachment_tag( string $attachments, string $tag ): string {
-        $lines = array_filter( array_map( 'trim', preg_split( '/\R/', $attachments ) ?: array() ) );
-        if ( ! in_array( $tag, $lines, true ) ) {
-            $lines[] = $tag;
-        }
-        return implode( "\n", $lines );
     }
 
     private static function fail( &$abort, string $reason ): void {
