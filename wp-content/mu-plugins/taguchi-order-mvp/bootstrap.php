@@ -166,16 +166,16 @@ final class Taguchi_Order_MVP {
         $filename = sanitize_file_name( 'purchase-order-' . $receipt_id . '.pdf' );
         $path = trailingslashit( $work_dir ) . $filename;
 
-        $font_dir = __DIR__ . '/fonts';
+        $font_dir = __DIR__;
         $regular  = $font_dir . '/NotoSansJP-Regular.ttf';
         $bold     = $font_dir . '/NotoSansJP-Bold.ttf';
 
         if ( ! is_readable( $regular ) || ! is_readable( $bold ) ) {
-            throw new RuntimeException( 'Noto Sans JP font files are missing from taguchi-order-mvp/fonts.' );
+            throw new RuntimeException( 'Noto Sans JP font files are missing from taguchi-order-mvp root.' );
         }
 
-        $config_variables = new \Mpdf\Config\ConfigVariables();
-        $font_variables   = new \Mpdf\Config\FontVariables();
+        $config_variables = new \\Mpdf\\Config\\ConfigVariables();
+        $font_variables   = new \\Mpdf\\Config\\FontVariables();
         $font_dirs        = $config_variables->getDefaults()['fontDir'];
         $font_data        = $font_variables->getDefaults()['fontdata'];
 
@@ -184,7 +184,7 @@ final class Taguchi_Order_MVP {
             'B' => basename( $bold ),
         );
 
-        $mpdf = new \Mpdf\Mpdf(
+        $mpdf = new \\Mpdf\\Mpdf(
             array(
                 'mode'          => 'utf-8',
                 'format'        => 'A4',
@@ -203,7 +203,7 @@ final class Taguchi_Order_MVP {
         $mpdf->SetTitle( '発注書 ' . $receipt_id );
         $mpdf->SetAuthor( '田口産業' );
         $mpdf->WriteHTML( self::render_pdf_html( $receipt_id, $data ) );
-        $mpdf->Output( $path, \Mpdf\Output\Destination::FILE );
+        $mpdf->Output( $path, \\Mpdf\\Output\\Destination::FILE );
 
         return $path;
     }
