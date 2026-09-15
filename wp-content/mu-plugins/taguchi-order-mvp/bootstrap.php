@@ -74,8 +74,16 @@ final class Taguchi_Order_MVP {
         }
 
         $mail = (array) $contact_form->prop( 'mail' );
-        $mail['subject'] = self::prefix_subject( (string) ( $mail['subject'] ?? '' ), self::$receipt_id );
-        $mail['body'] = self::prepend_receipt_to_body( (string) ( $mail['body'] ?? '' ), self::$receipt_id );
+        $subject = (string) ( $mail['subject'] ?? '' );
+        $body    = (string) ( $mail['body'] ?? '' );
+
+        if ( isset( $data['site_select'] ) ) {
+            $subject = str_replace( '[site_select]', $data['site_select'], $subject );
+            $body    = str_replace( '[site_select]', $data['site_select'], $body );
+        }
+
+        $mail['subject'] = self::prefix_subject( $subject, self::$receipt_id );
+        $mail['body']    = self::prepend_receipt_to_body( $body, self::$receipt_id );
 
         $contact_form->set_properties( array( 'mail' => $mail ) );
     }
