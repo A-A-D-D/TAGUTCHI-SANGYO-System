@@ -11,7 +11,7 @@
 .order-page .order-form select,
 .order-page .order-form textarea,
 .order-page .order-form button {
-  font-size: 18px;
+  font-size: 16px;
 }
 
 .order-page .order-form .container,
@@ -22,10 +22,15 @@
   padding-right: 0;
 }
 
+.order-page .order-form #cf7-input-area {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
 .order-page .order-form #cf7-input-area > .row {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  gap: 28px 40px;
+  gap: 22px 32px;
   width: 100%;
 }
 
@@ -37,17 +42,17 @@
 
 .order-page .order-form .form__item {
   display: grid;
-  grid-template-columns: 150px minmax(0, 1fr);
+  grid-template-columns: 110px minmax(0, 1fr);
   align-items: center;
-  gap: 18px;
-  margin-bottom: 28px;
+  gap: 14px;
+  margin-bottom: 22px;
 }
 
 .order-page .order-form .form__item .head,
 .order-page .order-form label {
   margin: 0;
-  font-size: 18px;
-  line-height: 1.5;
+  font-size: 16px;
+  line-height: 1.45;
   font-weight: 600;
 }
 
@@ -60,62 +65,63 @@
 .order-page .order-form input:not([type="submit"]):not([type="button"]):not([type="checkbox"]):not([type="radio"]),
 .order-page .order-form select {
   width: 100%;
-  min-height: 58px;
-  padding: 14px 18px;
-  font-size: 18px;
+  min-height: 52px;
+  padding: 12px 14px;
+  font-size: 16px;
   line-height: 1.45;
 }
 
 .order-page .order-form textarea {
   width: 100%;
-  min-height: 240px;
-  padding: 16px 18px;
-  font-size: 18px;
-  line-height: 1.65;
+  min-height: 210px;
+  padding: 14px 16px;
+  font-size: 16px;
+  line-height: 1.6;
 }
 
 .order-page .order-form .messageWrap {
-  margin-top: 12px;
+  max-width: 900px;
+  margin: 8px auto 0;
 }
 
 .order-page .order-form .messageWrap .form__item {
-  grid-template-columns: 150px minmax(0, 1fr);
+  grid-template-columns: 110px minmax(0, 1fr);
   align-items: start;
 }
 
 .order-page .order-form .messageWrap .head {
-  padding-top: 14px;
+  padding-top: 12px;
 }
 
 .order-page .order-form .ttl__layout01 {
-  margin-bottom: 52px;
-  font-size: 38px;
+  margin-bottom: 40px;
+  font-size: 32px;
   line-height: 1.25;
   font-weight: 600;
 }
 
 .order-page .order-form .form__submit {
-  margin-top: 52px;
+  margin-top: 40px;
   text-align: center;
 }
 
 .order-page .order-form input[type="submit"],
 .order-page .order-form button[type="submit"],
 .order-page .order-form .confirm-submit button {
-  min-height: 60px;
-  min-width: 280px;
-  padding: 15px 32px;
-  font-size: 18px;
+  min-height: 54px;
+  min-width: 260px;
+  padding: 13px 28px;
+  font-size: 16px;
   font-weight: 600;
 }
 
 .order-page .order-form .wpcf7-response-output {
-  font-size: 16px;
+  font-size: 15px;
 }
 
 .order-page .order-panel__notice,
 .order-page .order-description {
-  font-size: 17px;
+  font-size: 16px;
 }
 
 @media (max-width: 900px) {
@@ -127,7 +133,7 @@
   .order-page .order-form .form__item,
   .order-page .order-form .messageWrap .form__item {
     grid-template-columns: 1fr;
-    gap: 10px;
+    gap: 8px;
   }
 
   .order-page .order-form .messageWrap .head {
@@ -135,7 +141,7 @@
   }
 
   .order-page .order-form .ttl__layout01 {
-    margin-bottom: 36px;
-    font-size: 32px;
+    margin-bottom: 30px;
+    font-size: 28px;
   }
 }
