@@ -6,6 +6,15 @@
  * that must dominate legacy layout/typography live here intentionally.
  */
 
+.order-page .order-header {
+  width: 100%;
+  max-width: none;
+}
+
+.order-page .order-description {
+  max-width: none;
+}
+
 .order-page .order-form,
 .order-page .order-form input,
 .order-page .order-form select,
