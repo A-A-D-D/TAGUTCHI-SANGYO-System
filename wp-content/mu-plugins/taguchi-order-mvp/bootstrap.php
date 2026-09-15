@@ -85,26 +85,6 @@ final class Taguchi_Order_MVP {
             return $components;
         }
 
-        $submission = class_exists( 'WPCF7_Submission' ) ? WPCF7_Submission::get_instance() : null;
-        if ( $submission ) {
-            $posted_data = (array) $submission->get_posted_data();
-            $site_id = isset( $posted_data['site_select'] ) ? absint( $posted_data['site_select'] ) : 0;
-            $site_name = $site_id ? get_the_title( $site_id ) : '';
-
-            if ( $site_name ) {
-                if ( isset( $components['subject'] ) && is_string( $components['subject'] ) ) {
-                    $components['subject'] = str_replace( (string) $site_id, $site_name, $components['subject'] );
-                }
-                if ( isset( $components['body'] ) && is_string( $components['body'] ) ) {
-                    $components['body'] = preg_replace(
-                        '/(^|\R)(現場名:\s*\R?)' . preg_quote( (string) $site_id, '/' ) . '(?=\R|$)/u',
-                        '$1$2' . $site_name,
-                        $components['body']
-                    );
-                }
-            }
-        }
-
         if ( '' === self::$pdf_path || ! is_readable( self::$pdf_path ) ) {
             return $components;
         }
@@ -147,19 +127,18 @@ final class Taguchi_Order_MVP {
                 continue;
             }
 
-            if ( 'site_select' === $key ) {
-                $site_id = absint( $value );
-                $site_name = $site_id ? get_the_title( $site_id ) : '';
-                if ( $site_name ) {
-                    $value = $site_name;
-                }
-            }
-
             if ( '' === trim( (string) $value ) ) {
                 continue;
             }
 
             $normalized[ $key ] = (string) $value;
+        }
+
+        if ( isset( $normalized['site_select'] ) && ctype_digit( $normalized['site_select'] ) ) {
+            $site_post = get_post( (int) $normalized['site_select'] );
+            if ( $site_post ) {
+                $normalized['site_select'] = get_the_title( $site_post );
+            }
         }
 
         return $normalized;
@@ -187,21 +166,40 @@ final class Taguchi_Order_MVP {
         $filename = sanitize_file_name( 'purchase-order-' . $receipt_id . '.pdf' );
         $path = trailingslashit( $work_dir ) . $filename;
 
+        $font_dir = __DIR__ . '/fonts';
+        $regular  = $font_dir . '/NotoSansJP-Regular.ttf';
+        $bold     = $font_dir . '/NotoSansJP-Bold.ttf';
+
+        if ( ! is_readable( $regular ) || ! is_readable( $bold ) ) {
+            throw new RuntimeException( 'Noto Sans JP font files are missing from taguchi-order-mvp/fonts.' );
+        }
+
+        $config_variables = new \Mpdf\Config\ConfigVariables();
+        $font_variables   = new \Mpdf\Config\FontVariables();
+        $font_dirs        = $config_variables->getDefaults()['fontDir'];
+        $font_data        = $font_variables->getDefaults()['fontdata'];
+
+        $font_data['notosansjp'] = array(
+            'R' => basename( $regular ),
+            'B' => basename( $bold ),
+        );
+
         $mpdf = new \Mpdf\Mpdf(
             array(
-                'mode'          => '+aCJK',
+                'mode'          => 'utf-8',
                 'format'        => 'A4',
                 'orientation'   => 'P',
                 'tempDir'       => $work_dir,
-                'default_font'  => 'sun-exta',
                 'margin_top'    => 14,
                 'margin_right'  => 14,
                 'margin_bottom' => 14,
                 'margin_left'   => 14,
+                'fontDir'       => array_merge( $font_dirs, array( $font_dir ) ),
+                'fontdata'      => $font_data,
+                'default_font'  => 'notosansjp',
             )
         );
 
-        $mpdf->useSubstitutions = true;
         $mpdf->SetTitle( '発注書 ' . $receipt_id );
         $mpdf->SetAuthor( '田口産業' );
         $mpdf->WriteHTML( self::render_pdf_html( $receipt_id, $data ) );
@@ -222,13 +220,13 @@ final class Taguchi_Order_MVP {
 
         return sprintf(
             '<!doctype html><html lang="ja"><head><meta charset="UTF-8"><style>
-                body{font-family:sun-exta;color:#172033;font-size:10.5pt;line-height:1.6}
-                h1{font-family:sun-exta;font-size:20pt;margin:0 0 4mm}
-                .meta{font-family:sun-exta;color:#667085;font-size:9pt;margin-bottom:8mm}
+                body{font-family:notosansjp,sans-serif;color:#172033;font-size:10.5pt;line-height:1.6}
+                h1{font-family:notosansjp,sans-serif;font-size:20pt;font-weight:bold;margin:0 0 4mm}
+                .meta{color:#667085;font-size:9pt;margin-bottom:8mm}
                 table{border-collapse:collapse;width:100%%}
-                th,td{font-family:sun-exta;border:1px solid #cfd6e1;padding:3mm;vertical-align:top}
-                th{background:#f5f7fa;text-align:left;width:30%%;font-weight:bold}
-                .footer{font-family:sun-exta;color:#667085;font-size:8.5pt;margin-top:7mm}
+                th,td{border:1px solid #cfd6e1;padding:3mm;vertical-align:top}
+                th{background:#f5f7fa;text-align:left;width:30%%;font-family:notosansjp,sans-serif;font-weight:bold}
+                .footer{color:#667085;font-size:8.5pt;margin-top:7mm}
             </style></head><body>
                 <h1>発注書</h1>
                 <div class="meta">受付番号: %s<br>受付日時: %s</div>
