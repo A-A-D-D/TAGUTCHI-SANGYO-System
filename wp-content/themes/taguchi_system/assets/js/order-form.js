@@ -40,6 +40,26 @@
     }
   }
 
+  function createSuccessPanel(form) {
+    var panel = form.querySelector('.order-success');
+    if (panel) {
+      return panel;
+    }
+
+    panel = document.createElement('section');
+    panel.className = 'order-success';
+    panel.hidden = true;
+    panel.setAttribute('role', 'status');
+    panel.innerHTML = '' +
+      '<div class="order-success__mark" aria-hidden="true">✓</div>' +
+      '<h2 class="order-success__title">発注を受け付けました</h2>' +
+      '<p class="order-success__message">発注内容を本社へ送信しました。</p>' +
+      '<button type="button" class="order-success__again">続けて発注する</button>';
+
+    form.insertBefore(panel, form.firstChild);
+    return panel;
+  }
+
   function setupOrderConfirmation(form) {
     var inputArea = form.querySelector('#cf7-input-area');
     var confirmArea = form.querySelector('#cf7-confirm-area');
@@ -47,6 +67,8 @@
     if (!inputArea || !confirmArea) {
       return;
     }
+
+    var successPanel = createSuccessPanel(form);
 
     setupDefaultDeliveryDate(form);
     confirmArea.hidden = true;
@@ -90,6 +112,7 @@
         requestDate.textContent = 'ご依頼日 ' + new Intl.DateTimeFormat('ja-JP').format(new Date());
       }
 
+      successPanel.hidden = true;
       inputArea.hidden = true;
       confirmArea.hidden = false;
       confirmArea.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -122,15 +145,52 @@
         } else {
           form.submit();
         }
+        return;
+      }
+
+      var againButton = target.closest('.order-success__again');
+      if (againButton && form.contains(againButton)) {
+        event.preventDefault();
+        form.reset();
+        setupDefaultDeliveryDate(form);
+        successPanel.hidden = true;
+        confirmArea.hidden = true;
+        inputArea.hidden = false;
+        inputArea.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }
     }, true);
 
-    document.addEventListener('wpcf7invalid', function () {
+    document.addEventListener('wpcf7mailsent', function (event) {
+      if (event.target !== form) {
+        return;
+      }
+
+      inputArea.hidden = true;
+      confirmArea.hidden = true;
+      successPanel.hidden = false;
+
+      var response = form.querySelector('.wpcf7-response-output');
+      if (response) {
+        response.hidden = true;
+      }
+
+      successPanel.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    });
+
+    document.addEventListener('wpcf7invalid', function (event) {
+      if (event.target !== form) {
+        return;
+      }
+      successPanel.hidden = true;
       confirmArea.hidden = true;
       inputArea.hidden = false;
     });
 
-    document.addEventListener('wpcf7mailfailed', function () {
+    document.addEventListener('wpcf7mailfailed', function (event) {
+      if (event.target !== form) {
+        return;
+      }
+      successPanel.hidden = true;
       confirmArea.hidden = true;
       inputArea.hidden = false;
     });
