@@ -114,7 +114,6 @@ final class Taguchi_Order_MVP {
         foreach ( $posted_data as $key => $value ) {
             $key = (string) $key;
 
-            // CF7/internal transport fields are not business data.
             if ( '' === $key || 0 === strpos( $key, '_' ) ) {
                 continue;
             }
@@ -171,11 +170,11 @@ final class Taguchi_Order_MVP {
         $bold     = $font_dir . '/NotoSansJP-Bold.ttf';
 
         if ( ! is_readable( $regular ) || ! is_readable( $bold ) ) {
-            throw new RuntimeException( 'Noto Sans JP font files are missing from taguchi-order-mvp root.' );
+            throw new RuntimeException( 'Noto Sans JP font files are missing from taguchi-order-mvp.' );
         }
 
-        $config_variables = new \\Mpdf\\Config\\ConfigVariables();
-        $font_variables   = new \\Mpdf\\Config\\FontVariables();
+        $config_variables = new \Mpdf\Config\ConfigVariables();
+        $font_variables   = new \Mpdf\Config\FontVariables();
         $font_dirs        = $config_variables->getDefaults()['fontDir'];
         $font_data        = $font_variables->getDefaults()['fontdata'];
 
@@ -184,7 +183,7 @@ final class Taguchi_Order_MVP {
             'B' => basename( $bold ),
         );
 
-        $mpdf = new \\Mpdf\\Mpdf(
+        $mpdf = new \Mpdf\Mpdf(
             array(
                 'mode'          => 'utf-8',
                 'format'        => 'A4',
@@ -203,7 +202,7 @@ final class Taguchi_Order_MVP {
         $mpdf->SetTitle( '発注書 ' . $receipt_id );
         $mpdf->SetAuthor( '田口産業' );
         $mpdf->WriteHTML( self::render_pdf_html( $receipt_id, $data ) );
-        $mpdf->Output( $path, \\Mpdf\\Output\\Destination::FILE );
+        $mpdf->Output( $path, \Mpdf\Output\Destination::FILE );
 
         return $path;
     }
@@ -220,12 +219,12 @@ final class Taguchi_Order_MVP {
 
         return sprintf(
             '<!doctype html><html lang="ja"><head><meta charset="UTF-8"><style>
-                body{font-family:notosansjp,sans-serif;color:#172033;font-size:10.5pt;line-height:1.6}
-                h1{font-family:notosansjp,sans-serif;font-size:20pt;font-weight:bold;margin:0 0 4mm}
+                body{font-family:notosansjp;color:#172033;font-size:10.5pt;line-height:1.6}
+                h1{font-family:notosansjp;font-size:20pt;font-weight:bold;margin:0 0 4mm}
                 .meta{color:#667085;font-size:9pt;margin-bottom:8mm}
                 table{border-collapse:collapse;width:100%%}
                 th,td{border:1px solid #cfd6e1;padding:3mm;vertical-align:top}
-                th{background:#f5f7fa;text-align:left;width:30%%;font-family:notosansjp,sans-serif;font-weight:bold}
+                th{background:#f5f7fa;text-align:left;width:30%%;font-family:notosansjp;font-weight:bold}
                 .footer{color:#667085;font-size:8.5pt;margin-top:7mm}
             </style></head><body>
                 <h1>発注書</h1>
