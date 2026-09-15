@@ -16,6 +16,16 @@ if ( file_exists( $order_ui_path ) ) {
     );
 }
 
+$order_ui_legacy_path = get_stylesheet_directory() . '/assets/css/order-ui-legacy.css';
+if ( file_exists( $order_ui_legacy_path ) ) {
+    wp_enqueue_style(
+        'taguchi-order-ui-legacy',
+        get_stylesheet_directory_uri() . '/assets/css/order-ui-legacy.css',
+        array( 'taguchi-order-ui' ),
+        (string) filemtime( $order_ui_legacy_path )
+    );
+}
+
 $order_form_js_path = get_stylesheet_directory() . '/assets/js/order-form.js';
 if ( file_exists( $order_form_js_path ) ) {
     wp_enqueue_script(
