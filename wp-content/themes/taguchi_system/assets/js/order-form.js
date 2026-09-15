@@ -18,11 +18,8 @@
   function setupOrderConfirmation(form) {
     var inputArea = form.querySelector('#cf7-input-area');
     var confirmArea = form.querySelector('#cf7-confirm-area');
-    var confirmButton = form.querySelector('.confirm-button');
-    var realSubmitButton = form.querySelector('#real-submit-button');
-    var backButton = form.querySelector('#back-button');
 
-    if (!inputArea || !confirmArea || !confirmButton || !realSubmitButton || !backButton) {
+    if (!inputArea || !confirmArea) {
       return;
     }
 
@@ -72,19 +69,35 @@
       confirmArea.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }, true);
 
-    backButton.addEventListener('click', function (event) {
-      event.preventDefault();
-      confirmArea.hidden = true;
-      inputArea.hidden = false;
-      inputArea.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    });
+    document.addEventListener('click', function (event) {
+      var target = event.target;
+      if (!(target instanceof Element)) {
+        return;
+      }
 
-    realSubmitButton.addEventListener('click', function (event) {
-      event.preventDefault();
-      event.stopPropagation();
-      form.dataset.taguchiFinalSubmit = '1';
-      form.requestSubmit();
-    });
+      var backButton = target.closest('#back-button');
+      if (backButton && form.contains(backButton)) {
+        event.preventDefault();
+        event.stopPropagation();
+        confirmArea.hidden = true;
+        inputArea.hidden = false;
+        inputArea.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        return;
+      }
+
+      var realSubmitButton = target.closest('#real-submit-button');
+      if (realSubmitButton && form.contains(realSubmitButton)) {
+        event.preventDefault();
+        event.stopPropagation();
+        form.dataset.taguchiFinalSubmit = '1';
+
+        if (typeof form.requestSubmit === 'function') {
+          form.requestSubmit();
+        } else {
+          form.submit();
+        }
+      }
+    }, true);
 
     document.addEventListener('wpcf7invalid', function () {
       confirmArea.hidden = true;
