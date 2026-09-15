@@ -42,9 +42,9 @@
 
 .order-page .order-form .form__item {
   display: grid;
-  grid-template-columns: max-content minmax(0, 1fr);
-  align-items: center;
-  gap: 14px;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: start;
+  gap: 8px;
   margin-bottom: 22px;
 }
 
@@ -56,7 +56,7 @@
   font-size: 16px;
   line-height: 1.45;
   font-weight: 600;
-  white-space: nowrap;
+  white-space: normal;
 }
 
 .order-page .order-form .input-field,
@@ -88,12 +88,12 @@
 }
 
 .order-page .order-form .messageWrap .form__item {
-  grid-template-columns: max-content minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr);
   align-items: start;
 }
 
 .order-page .order-form .messageWrap .head {
-  padding-top: 12px;
+  padding-top: 0;
 }
 
 .order-page .order-form .ttl__layout01 {
@@ -135,17 +135,7 @@
 
   .order-page .order-form .form__item,
   .order-page .order-form .messageWrap .form__item {
-    grid-template-columns: 1fr;
     gap: 8px;
-  }
-
-  .order-page .order-form .form__item .head,
-  .order-page .order-form label {
-    white-space: normal;
-  }
-
-  .order-page .order-form .messageWrap .head {
-    padding-top: 0;
   }
 
   .order-page .order-form .ttl__layout01 {
