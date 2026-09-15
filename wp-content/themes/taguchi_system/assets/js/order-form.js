@@ -15,6 +15,31 @@
     return Number(parts[0]) + '年' + Number(parts[1]) + '月' + Number(parts[2]) + '日';
   }
 
+  function formatDateInputValue(date) {
+    var year = date.getFullYear();
+    var month = String(date.getMonth() + 1).padStart(2, '0');
+    var day = String(date.getDate()).padStart(2, '0');
+    return year + '-' + month + '-' + day;
+  }
+
+  function setupDefaultDeliveryDate(form) {
+    var dateField = form.querySelector('[name="date"]');
+    if (!dateField) {
+      return;
+    }
+
+    var tomorrow = new Date();
+    tomorrow.setHours(12, 0, 0, 0);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+
+    var tomorrowValue = formatDateInputValue(tomorrow);
+    dateField.min = tomorrowValue;
+
+    if (!dateField.value) {
+      dateField.value = tomorrowValue;
+    }
+  }
+
   function setupOrderConfirmation(form) {
     var inputArea = form.querySelector('#cf7-input-area');
     var confirmArea = form.querySelector('#cf7-confirm-area');
@@ -23,6 +48,7 @@
       return;
     }
 
+    setupDefaultDeliveryDate(form);
     confirmArea.hidden = true;
 
     form.addEventListener('submit', function (event) {
