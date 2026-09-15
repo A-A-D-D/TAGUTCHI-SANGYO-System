@@ -40,6 +40,41 @@
     }
   }
 
+  function hasSelectableSite(site) {
+    if (!site || !site.options) {
+      return false;
+    }
+
+    return Array.prototype.some.call(site.options, function (option) {
+      return !option.disabled && String(option.value || '').trim() !== '';
+    });
+  }
+
+  function setupSiteAvailability(form) {
+    var site = form.querySelector('[name="site_select"]');
+    if (!site || hasSelectableSite(site)) {
+      return true;
+    }
+
+    site.innerHTML = '<option value="" selected>現場がありません</option>';
+    site.disabled = true;
+    site.setAttribute('aria-disabled', 'true');
+
+    var siteAddress = form.querySelector('[name="site_address"]');
+    if (siteAddress) {
+      siteAddress.value = '現場を登録してください';
+      siteAddress.placeholder = '現場を登録してください';
+    }
+
+    var confirmButton = form.querySelector('.confirm-button');
+    if (confirmButton) {
+      confirmButton.disabled = true;
+      confirmButton.setAttribute('aria-disabled', 'true');
+    }
+
+    return false;
+  }
+
   function createSuccessPanel(form) {
     var panel = form.querySelector('.order-success');
     if (panel) {
@@ -71,6 +106,7 @@
     var successPanel = createSuccessPanel(form);
 
     setupDefaultDeliveryDate(form);
+    setupSiteAvailability(form);
     confirmArea.hidden = true;
 
     form.addEventListener('submit', function (event) {
@@ -82,7 +118,7 @@
       event.preventDefault();
       event.stopImmediatePropagation();
 
-      if (!form.reportValidity()) {
+      if (!setupSiteAvailability(form) || !form.reportValidity()) {
         return;
       }
 
@@ -153,6 +189,7 @@
         event.preventDefault();
         form.reset();
         setupDefaultDeliveryDate(form);
+        setupSiteAvailability(form);
         successPanel.hidden = true;
         confirmArea.hidden = true;
         inputArea.hidden = false;
