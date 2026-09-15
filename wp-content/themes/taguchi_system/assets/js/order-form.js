@@ -57,7 +57,6 @@
       text('#cf7-confirm-area .confirm-site dl:nth-child(4) dd', time ? time.value : '');
       text('#cf7-confirm-area .confirm-message .message-content', message ? message.value : '');
 
-      /* The legacy confirmation block contains sample customer data. Do not show false information. */
       var legacyInfo = confirmArea.querySelector('.confirm-info');
       if (legacyInfo) {
         legacyInfo.hidden = true;
@@ -73,15 +72,18 @@
       confirmArea.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }, true);
 
-    backButton.addEventListener('click', function () {
+    backButton.addEventListener('click', function (event) {
+      event.preventDefault();
       confirmArea.hidden = true;
       inputArea.hidden = false;
       inputArea.scrollIntoView({ behavior: 'smooth', block: 'start' });
     });
 
-    realSubmitButton.addEventListener('click', function () {
+    realSubmitButton.addEventListener('click', function (event) {
+      event.preventDefault();
+      event.stopPropagation();
       form.dataset.taguchiFinalSubmit = '1';
-      form.requestSubmit(confirmButton);
+      form.requestSubmit();
     });
 
     document.addEventListener('wpcf7invalid', function () {
